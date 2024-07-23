@@ -13,10 +13,11 @@ def mse_loss(y_true, y_pred):
     return ((y_true - y_pred) ** 2).mean()
 
 class Omrezje:
-    def __init__(self, sizes):
+    def __init__(self, sizes, name):
         self.layers = len(sizes)
         self.bias = [np.random.randn(y, 1) for y in sizes[1:]]
         self.weights = [np.random.randn(y, x) for (x, y) in zip(sizes[:-1], sizes[1:])]
+        self.name = name
 
     def output(self, a):
         for w, b in zip(self.weights, self.bias):
@@ -65,8 +66,8 @@ class Omrezje:
         self.bias = [b - (eta / m) * nb for b, nb in zip(self.bias, vsote_parcialov_b)]
         
     def shrani_parametre(self):
-        ime_datoteke_pickle = 'parametri.pkl'
-        ime_datoteke_txt = 'parametri.txt'
+        ime_datoteke_pickle = f'parametri_{self.name}.pkl'
+        ime_datoteke_txt = f'parametri_{self.name}.txt'
         pot_do_mape = os.path.dirname(os.path.abspath(__file__))
         celotna_pot_pickle = os.path.join(pot_do_mape, ime_datoteke_pickle)
         celotna_pot_txt = os.path.join(pot_do_mape, ime_datoteke_txt)
@@ -109,7 +110,7 @@ nand_data = [
     (np.array([[1], [1]]), np.array([[0]]))
 ]
 # Ustvarjanje in treniranje omrežja za NAND operator
-omrezje_nand = Omrezje([2, 10, 10, 1])
+omrezje_nand = Omrezje([2, 10, 10, 1], "nand_operator")
 omrezje_nand.sgd(nand_data, 500, 4, 20, nand_data)
 
 # Preverjanje rezultatov
@@ -124,7 +125,7 @@ xor_data = [
     (np.array([[1], [1]]), np.array([[0]]))
 ]
 
-omrezje_xor = Omrezje([2, 30, 1])
+omrezje_xor = Omrezje([2, 30, 1], "xor_operator")
 omrezje_xor.sgd(xor_data, 500, 4, 20, xor_data)
 
 # Preverjanje rezultatov
