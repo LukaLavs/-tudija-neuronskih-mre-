@@ -3,11 +3,6 @@ import random
 import pickle
 import os
 
-import numpy as np
-import random
-import pickle
-import os
-
 def sigmoid(z):
     return 1.0 / (1.0 + np.exp(-z))
 
@@ -42,7 +37,9 @@ class Omrezje:
             z_vrednosti.append(z)
             aktivacija = sigmoid(z)
             aktivacije.append(aktivacija)
-        
+            
+        #odvod cost funkcije po zadnji z vrednosti 
+        #delta=partialC/partialz=(partialC/partiala)*(partiala/partialz)
         delta = (aktivacije[-1] - y) * sigmoid_derivative(z_vrednosti[-1])
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, aktivacije[-2].transpose())
@@ -86,7 +83,7 @@ class Omrezje:
         print(f"Parametri so bili uspešno shranjeni v {pot_do_mape}.")
     
     def evaluate(self, test_data):
-        test_results = [(self.output(x), y) for (x, y) in test_data]
+        #test_results = [(self.output(x), y) for (x, y) in test_data]
         return mse_loss(np.array([y for (x, y) in test_data]), np.array([self.output(x) for (x, y) in test_data]))
     
     def sgd(self, training_data, epoch, mini_nabor_velikost, eta, test_data=None):
@@ -113,9 +110,24 @@ nand_data = [
 ]
 # Ustvarjanje in treniranje omrežja za NAND operator
 omrezje_nand = Omrezje([2, 10, 10, 1])
-omrezje_nand.sgd(nand_data, 10000, 4, 0.1, nand_data)
+omrezje_nand.sgd(nand_data, 500, 4, 20, nand_data)
 
 # Preverjanje rezultatov
 for x, y in nand_data:
     napoved = omrezje_nand.output(x)
+    print(f"Vhod: {x.flatten()}, Pričakovan izhod: {y.flatten()}, Napoved: {napoved.flatten()}")
+    
+xor_data = [
+    (np.array([[0], [0]]), np.array([[0]])),
+    (np.array([[0], [1]]), np.array([[1]])),
+    (np.array([[1], [0]]), np.array([[1]])),
+    (np.array([[1], [1]]), np.array([[0]]))
+]
+
+omrezje_xor = Omrezje([2, 30, 1])
+omrezje_xor.sgd(xor_data, 500, 4, 20, xor_data)
+
+# Preverjanje rezultatov
+for x, y in xor_data:
+    napoved = omrezje_xor.output(x)
     print(f"Vhod: {x.flatten()}, Pričakovan izhod: {y.flatten()}, Napoved: {napoved.flatten()}")
