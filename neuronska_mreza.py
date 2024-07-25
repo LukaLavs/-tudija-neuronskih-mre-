@@ -1,5 +1,5 @@
 class Omrezje:
-    
+
     def exp(self,x):
         e = 2.718281828459045235360287471352
         def f(n):
@@ -27,6 +27,7 @@ class Omrezje:
     
     def sigmoid_odvod(self, z):
         return self.sigmoid(z) * (1 - self.sigmoid(z))
+    
     
     def __init__(self, sloji, seme=42):
         self.seme = seme
@@ -73,7 +74,7 @@ class Omrezje:
         self.pristranskost = [[a - (eta / m) * b for (a, b) in zip(p, npp)] for (p, npp) in zip(self.pristranskost, nabor_parcialov_p)]
         self.utezi = [[[a - (eta / m) * b for (a, b) in zip(vrstica1, vrstica2)] for (vrstica1, vrstica2) in zip(u, npu)] for (u, npu) in zip(self.utezi, nabor_parcialov_u)]
     
-    def ucenje(self, trening, velikost_naborov, epoch, eta, test=None):
+    def ucenje(self, trening, velikost_naborov, epoch, eta, posebno=None):
         n = len(trening)
         for e in range(epoch):
             self.zmesaj(trening)
@@ -81,7 +82,7 @@ class Omrezje:
             for mali_nabor in mali_nabori:
                 self.gradientni_spust(mali_nabor, eta)
             print(f"epoch: {e}, cena: {self.cena(trening)}")
-        self.test(trening)
+        self.test(trening, posebno)
     
     def izhod(self, x):
         for (u, p) in zip(self.utezi, self.pristranskost):
@@ -91,18 +92,62 @@ class Omrezje:
     def cena(self, trening):
         return (1 / (2 * len(trening))) * sum([sum([(k1 - k2) ** 2 for (k1, k2) in zip(self.izhod(x), y)]) for (x, y) in trening]) ** 0.5
         
-    def test(self, trening):
-        self.zmesaj(trening)
-        for (x,y) in trening[:4]:
-            print(f"{x} -> {self.izhod(x)}, y(x) = {y}")  
+    def test(self, trening, posebno=None):
+        for (x,y) in trening[:30]:
+            if posebno:
+                posebno(x, self.izhod(x), y)
+            else:
+                print(f"{x} -> {self.izhod(x)}, y(x) = {y}")  
 
 
 
-trening_xor = [
-    ([0, 0], [0]),
-    ([0, 1], [1]),
-    ([1, 0], [1]),
-    ([1, 1], [0])
-]
-omrezje = Omrezje([2, 2, 1])
-omrezje.ucenje(trening_xor, velikost_naborov=2, epoch=1000, eta=10)
+      
+
+#######################################################
+#Omrezje 1:
+def omrezje_xor():
+    trening_xor = [
+        ([0, 0], [0]),
+        ([0, 1], [1]),
+        ([1, 0], [1]),
+        ([1, 1], [0])
+    ]
+    omrezje = Omrezje([2, 2, 1])
+    omrezje.ucenje(trening_xor, velikost_naborov=2, epoch=1000, eta=10)
+
+#Za zagon odkomentiraj:
+#omrezje_xor()
+
+######################################################
+######################################################
+######################################################
+#Omrezje 1:
+
+def omrezje_parabola():
+    
+    def binarni_zapis(n, l):
+        return bin(n)[2:].zfill(l)
+    
+    def decimalni_zapis(vektor):
+        stevilo = "".join([str(v) for v in vektor])
+        return int(stevilo.lstrip("0"), 2)
+    
+    omrezje = Omrezje([10, 70, 30, 10])
+    trening_parabola = []
+    for i in range(1, 31 + 1):
+        x = [int(cifra) for cifra in str(binarni_zapis(i, 10))]
+        y = [int(cifra) for cifra in str(binarni_zapis(i**2, 10))]
+        trening_parabola.append((x, y))
+        
+    def posebno(x, x_izhod, y):
+        stevilo_x = decimalni_zapis(x)
+        x_izhod = decimalni_zapis([round(element) for element in x_izhod])
+        stevilo_y = decimalni_zapis(y)
+        print(f"{stevilo_x} -> {x_izhod}, y(x) = {stevilo_y}") 
+        
+    omrezje.ucenje(trening_parabola, velikost_naborov=20, epoch=300, eta=20, posebno=posebno)
+    
+#Za zagon odkomentiraj:
+#omrezje_parabola()
+
+############################################################
