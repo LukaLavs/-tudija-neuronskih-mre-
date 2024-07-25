@@ -75,6 +75,7 @@ class Omrezje:
         self.utezi = [[[a - (eta / m) * b for (a, b) in zip(vrstica1, vrstica2)] for (vrstica1, vrstica2) in zip(u, npu)] for (u, npu) in zip(self.utezi, nabor_parcialov_u)]
     
     def ucenje(self, trening, velikost_naborov, epoch, eta, posebno=None):
+        
         n = len(trening)
         for e in range(epoch):
             self.zmesaj(trening)
@@ -130,12 +131,15 @@ def omrezje_parabola():
     
     def decimalni_zapis(vektor):
         stevilo = "".join([str(v) for v in vektor])
-        return int(stevilo.lstrip("0"), 2)
+        stevilo = stevilo.lstrip("0")
+        if stevilo == "":
+            return 0
+        return int(stevilo, 2)
     
-    omrezje = Omrezje([10, 70, 30, 10])
+    omrezje = Omrezje([5, 70, 30, 10])
     trening_parabola = []
     for i in range(1, 31 + 1):
-        x = [int(cifra) for cifra in str(binarni_zapis(i, 10))]
+        x = [int(cifra) for cifra in str(binarni_zapis(i, 5))]
         y = [int(cifra) for cifra in str(binarni_zapis(i**2, 10))]
         trening_parabola.append((x, y))
         
@@ -151,3 +155,4 @@ def omrezje_parabola():
 #omrezje_parabola()
 
 ############################################################
+
