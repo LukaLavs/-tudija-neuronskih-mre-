@@ -10,7 +10,7 @@ class Omrezje:
             return sum([(x**n)/f(n) for n in range(10)])    
         if abs(x)>1:
             return 1/((e**int(x))*ex(abs(x-int(x))))
-        return ex(x)    
+        return ex(-x)    
     
     def uniform(self, a, b):
         self.seme = (1103515245 * self.seme + 12345) % (2**31)
@@ -114,7 +114,7 @@ def omrezje_xor():
         ([1, 1], [0])
     ]
     omrezje = Omrezje([2, 2, 1])
-    omrezje.ucenje(trening_xor, velikost_naborov=2, epoch=1000, eta=10)
+    omrezje.ucenje(trening_xor, velikost_naborov=4, epoch=1000, eta=6)
 
 #Za zagon odkomentiraj:
 #omrezje_xor()
@@ -155,4 +155,3 @@ def omrezje_parabola():
 #omrezje_parabola()
 
 ############################################################
-
