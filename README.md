@@ -16,7 +16,7 @@ Drugo omrežje je bilo naučeno računati kvadrate števil od 0 do 31. Omrežje 
 
 Koda prikaže zmanjševanje funkcije cene oz. napake ob vsakem koraku (epoch). Na koncu pa predstavi nekaj rezultatov v obliki:
 
-_input -> output, y(x) = točna oz. željena vrednost_
+_vhod -> izhod, y(x) = točna oz. željena vrednost_
 
 
 
