@@ -133,7 +133,6 @@ def omrezje_xor():
 ######################################################
 ######################################################
 #Omrezje 2:
-
 def omrezje_parabola():
     
     def binarni_zapis(n, l):
@@ -160,9 +159,6 @@ def omrezje_parabola():
         print(f"{stevilo_x} -> {x_izhod}, y(x) = {stevilo_y}") 
         
     omrezje.ucenje(trening_parabola, velikost_naborov=20, epoch=300, eta=20, posebno=posebno)
-    print("Kaj pa 32^2, tega ni v treningu:")
-    print(decimalni_zapis([round(i) for i in omrezje.izhod( [int(cifra) for cifra in str(binarni_zapis(32, 5))])]))
-    print("Pravi odgovor pa je 1024")
     
 #Za zagon odkomentiraj:
 #omrezje_parabola()
