@@ -12,6 +12,10 @@ Prvo omrežje je bilo naučeno izvajati XOR operacijo.
 
 Drugo omrežje je bilo naučeno računati kvadrate števil od 0 do 31. Omrežje sprejme vektor binarne reprezentacije števila z dimenzijo 5 (ker ima 31 v binarnem sistemu 5 cifer) in vrne ustrezen vektor, ki predstavlja kvadrat danega števila (z dimenzijo 10, saj ima 31^2 v binarnem sistemu 10 cifer).
 
+### Omrežje 3: Napovedovanje besed
+
+Tretje omrežje prebere besedilo, ustvari set vseh besed, vsako besedo nato prevede v število (to število pove na katerem mestu v setu besed se beseda nahaja), nato pa to število še prevede v binarni sistem. Za učenje sprejme pet "besed", njegov cilj pa je uganiti naslednjo.
+
 ## Opis Kode
 
 Koda prikaže zmanjševanje funkcije cene oz. napake ob vsakem koraku (epoch). Na koncu pa predstavi nekaj rezultatov v obliki:
