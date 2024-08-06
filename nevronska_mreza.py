@@ -46,9 +46,11 @@ class Omrezje:
             z = [sum([element1 * element2 for element1, element2 in zip(vrstica, aktivacije[-1])]) + element_p for (vrstica, element_p) in zip(u, p)]
             zv.append(z)
             aktivacija = [self.sigmoid(element) for element in z]
+           
             aktivacije.append(aktivacija)
         
         delta = [(element1 - element2) * self.sigmoid_odvod(z) for (element1, element2, z) in zip(aktivacije[-1], y, zv[-1])]
+        
         parciali_p[-1] = delta
         parciali_u[-1] = [[d * a for a in aktivacije[-2]] for d in delta]
         
@@ -58,31 +60,39 @@ class Omrezje:
             delta = [d * sp for d, sp in zip(delta, sp)]
             parciali_p[-l] = delta
             parciali_u[-l] = [[d * a for a in aktivacije[-l-1]] for d in delta]
-        
+            
         return (parciali_u, parciali_p)
     
     def gradientni_spust(self, mali_nabor, eta):
         nabor_parcialov_u = [[[0 for _ in range(x)] for _ in range(y)] for (x, y) in zip(self.sloji[:-1], self.sloji[1:])]
         nabor_parcialov_p = [[0 for _ in range(y)] for y in self.sloji[1:]]
         m = len(mali_nabor)
-        
+    
         for (x, y) in mali_nabor:
             parcial_u, parcial_p = self.iskanje_parcialov(x, y)
             nabor_parcialov_p = [[a + b for (a, b) in zip(vektor1, vektor2)] for (vektor1, vektor2) in zip(nabor_parcialov_p, parcial_p)]
             nabor_parcialov_u = [[[a + b for (a, b) in zip(vrstica1, vrstica2)] for (vrstica1, vrstica2) in zip(pu, npu)] for (pu, npu) in zip(parcial_u, nabor_parcialov_u)]
-        
+            
         self.pristranskost = [[a - (eta / m) * b for (a, b) in zip(p, npp)] for (p, npp) in zip(self.pristranskost, nabor_parcialov_p)]
         self.utezi = [[[a - (eta / m) * b for (a, b) in zip(vrstica1, vrstica2)] for (vrstica1, vrstica2) in zip(u, npu)] for (u, npu) in zip(self.utezi, nabor_parcialov_u)]
     
-    def ucenje(self, trening, velikost_naborov, epoch, eta, posebno=None):
+    def ucenje(self, trening, velikost_naborov, epoch, eta, posebno=None, stej_ceno=True):
         
         n = len(trening)
         for e in range(epoch):
+            
             self.zmesaj(trening)
             mali_nabori = [trening[i:i + velikost_naborov] for i in range(0, n, velikost_naborov)]
             for mali_nabor in mali_nabori:
                 self.gradientni_spust(mali_nabor, eta)
-            print(f"epoch: {e}, cena: {self.cena(trening)}")
+                
+            if stej_ceno:
+                print(f"epoch: {e}, cena: {self.cena(trening)}")
+            else:
+                print(e)
+                if e%20==0:
+                    print(f"epoch: {e}, cena: {self.cena(trening)}")
+                    
         self.test(trening, posebno)
     
     def izhod(self, x):
@@ -94,7 +104,7 @@ class Omrezje:
         return (1 / (2 * len(trening))) * sum([sum([(k1 - k2) ** 2 for (k1, k2) in zip(self.izhod(x), y)]) for (x, y) in trening]) ** 0.5
         
     def test(self, trening, posebno=None):
-        for (x,y) in trening[:30]:
+        for (x,y) in trening[:200]:
             if posebno:
                 posebno(x, self.izhod(x), y)
             else:
@@ -122,7 +132,7 @@ def omrezje_xor():
 ######################################################
 ######################################################
 ######################################################
-#Omrezje 1:
+#Omrezje 2:
 
 def omrezje_parabola():
     
@@ -156,5 +166,82 @@ def omrezje_parabola():
     
 #Za zagon odkomentiraj:
 #omrezje_parabola()
+
+######################################################
+######################################################
+######################################################
+#Omrežje 3:
+
+def omrezje_napovedovanje_besed():
+    import os
+    pot = os.path.dirname(os.path.realpath(__file__))
+    pot = os.path.join(pot, "besedilo.txt")
+    
+    def binarni_zapis(n, l):
+        return bin(n)[2:].zfill(l)
+    
+    def decimalni_zapis(vektor):
+        stevilo = "".join([str(v) for v in vektor])
+        stevilo = stevilo.lstrip("0")
+        if stevilo == "":
+            return 0
+        return int(stevilo, 2)
+    
+    c=0 #šteje koliko vrstic želimo vzeti, recimo 30 vrstic
+    besedilo = ""
+    with open(pot, "r", encoding="utf-8") as file:
+        for line in file.readlines():
+            if line != "\n":
+                if c >= 30:
+                    break
+                c+=1
+                besedilo += " " + line.strip().lower()
+    
+    besedilo = [a for a in besedilo.split(" ") if a not in [" ", ""]] 
+    besedilo = [a[:-1] if a[-1] in ".!,?:" else a for a in besedilo]
+    besede = list(set(besedilo))
+    n = len(besede)
+    if n > 1000:
+        print("verjetno potrebuješ večje binarne številke")
+        #1000 ima 10 digits v binarnem sistemu
+        return
+    
+    def sifriraj(skupek_besed):
+        sifra = []
+        for b in skupek_besed:
+            if b not in besede:
+                if b not in besedilo:
+                    print("težava z indeksom")
+                    continue
+            p = binarni_zapis(besede.index(b), 10) #1000 ima 10 digits v binarnem sistemu
+        
+            for t in p:
+                sifra.append(int(t))
+        return sifra
+    
+    trening = []
+    for i in range(5, len(besedilo)):
+        trening.append((sifriraj(besedilo[i-5:i]), sifriraj([besedilo[i]])))
+    
+    omrezje = Omrezje([50, 30, 20, 10])
+    def posebno(x, x_izhod, y):
+        stevilo_x = [besede[decimalni_zapis("".join([str(a) for a in x[i:i+10]]))] for i in range(0, 50, 10)] #50 ker 1000 ima 10 digits in podamo 5 besed
+        x_izhod1 = besede[decimalni_zapis([round(e) for e in x_izhod])]
+        stevilo_y = besede[decimalni_zapis([round(e) for e in y])]
+        
+        if x_izhod1 == stevilo_y:
+            print("ugotovil je pravilno")
+            print(f"{stevilo_x} -> {x_izhod1}, y(x) = {stevilo_y}") 
+            print("######################")  
+        else:
+            print("zmotil se je")
+            print(f"uganil je: {decimalni_zapis([round(e) for e in x_izhod])}")
+            print(f"moral bi: {decimalni_zapis([round(e) for e in y])}")
+            print("######################")
+    #print(len(trening)) #dolžina je ~ 1850
+    omrezje.ucenje(trening[:100], velikost_naborov=60, epoch=300, eta=10, posebno=posebno, stej_ceno=True)
+
+#Za zagon odkomentiraj:    
+#omrezje_napovedovanje_besed()
 
 ############################################################
